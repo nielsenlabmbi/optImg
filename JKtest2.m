@@ -1,34 +1,42 @@
 %%
-v = videoinput('gige', 1, 'Mono8');
-s = v.Source;
-triggerconfig(v, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
-s.TriggerMode = 'on';
-v.TriggerRepeat = 0;
-s.PacketSize = 9014;
-s.PacketDelay = 112;  % used CalculatePacketDelay.m
-% 
-v.IgnoreDroppedFrames = 'on';
-v.StopFcn = 'cbTest';
-v.TriggerFcn = 'camTriggerOccurred';
+cam = videoinput('gige', 1, 'Mono8');
+src = cam.Source;
+src.PacketSize = 9014;
+src.PacketDelay = 112;  % used CalculatePacketDelay.m
+ 
+cam.IgnoreDroppedFrames = 'on';  % this might not be desirable
+%v.StopFcn = {@cbTest, v};
+cam.FramesAcquiredFcn = {@cbTest, cam};
+cam.FramesAcquiredFcnCount = 64;
+cam.TriggerFcn = 'camTriggerOccurred';
+cam.StartFcn = {@startCb, cam};
+triggerconfig(cam, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
+src.TriggerMode = 'on';
+cam.TriggerRepeat = 0;
+
 
 %% this works kinda
-numTrials = 2;
-trialDur = 4.0;  
+numTrials = 1;
+trialDur = 3.8;  
 dt = 6; % trialDur/1;    
 frameRate = 16;
 numFrames = ceil(trialDur * frameRate);
 % s.ExposureMode = 'Timed';
 % s.ExposureTimeRaw = 49000;
 % Specify number of frames to acquire
-v.TriggerRepeat = numTrials - 1;
-v.FramesPerTrigger = numFrames;
-s.TriggerNumFrames = v.FramesPerTrigger;
+%cam.TriggerRepeat = numTrials - 1;
+cam.FramesPerTrigger = numFrames;
+% s.TriggerNumFrames = v.FramesPerTrigger;
+cam.FramesAcquiredFcnCount = numFrames;
 %%%
 clear data;
 % Start continuous buffered acquisition and wait for acquisition to complete
+%tic
+%%
 tic
-start(v);  % takes about 1.6-2.0 sec to complete
+start(cam);  % takes about 1.6-2.0 sec to complete
 toc
+%%
 
 for trial = 1:numTrials
     fprintf('trigger now\n')
@@ -36,31 +44,36 @@ for trial = 1:numTrials
     fprintf('start wait\n')
     tic
     try 
-        %wait(v, trialDur + dt, "logging")
-        wait(v, trialDur + dt, 'running')
+        wait(cam, trialDur + dt, 'running')
     catch ME
         disp(ME.message)
         fprintf("\ntimeout")
-        stop(v)
+        stop(cam)
     end
     toc
     fprintf('wait finished\n')
-    if(v.FramesAcquired ~= numFrames)
-        fprintf('dropped %d frames\n', v.NumDroppedFrames)
+    fprintf('captured %d of %d frames\n', cam.FramesAcquired, numFrames);
+    if(cam.FramesAcquired ~= numFrames)
+        fprintf('dropped %d frames\n', cam.NumDroppedFrames)
     end
-    [data, ts] = getdata(v, v.FramesAvailable);
+    [data, ts] = getdata(cam, cam.FramesAvailable);
     if ~isempty(data)
         imaqmontage(data)
     else
         fprintf("no data\n")
-        stop(v)
+        stop(cam)
     end
 end
 
-%%
-flushdata(v);
+%% save to mat file
+tic
+fname = 'testData1'
+save(fname,"ts", "data")
+toc
+%% clear and reset
+flushdata(cam);
 imaqreset;
-delete(v);
+delete(cam);
 clear;
 close all;
 

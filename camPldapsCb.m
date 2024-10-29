@@ -4,7 +4,7 @@ global cam UDPport fileInfo trialCounter meta;
 
 try
     n = get(UDPport,'NumBytesAvailable');
-    disp("camPladaps callback()") ;
+    %disp("camPladaps callback()") ;
 
     if n > 0
         % inString = fread(UDPport,n);
@@ -16,8 +16,8 @@ try
     end
     
     %inString = inString(1:end-1);  %Get rid of the terminator
-    msg=strsplit(inString,';');
-    disp(['received: ' msg{1}])
+    msg=strtrim(strsplit(inString,';'));
+    %disp(['received: ' msg{1}])
     
     switch msg{1}
         
@@ -25,13 +25,21 @@ try
             camPreview;
             
         case 'F' %filename
-            fileInfo.filename=msg{2};
-            camFile;
+            fileInfo.filename=strtrim(msg{2});
+            % JK camFile;
            
         case 'G' %get camera ready for acquisition (starts with hardware trigger)
-            disp(['Trial ' num2str(trialCounter) ' start (waiting for trigger)']);
             start(cam);
-        
+            disp(['Trial ' num2str(trialCounter) ' start (waiting for trigger)']);
+           
+        case 'T' % trial duration in seconds
+            frameRate = 16.29;
+            dur = str2double(msg{2});
+            numFrames = ceil(dur * frameRate);
+            fprintf("T trial duration: %0.2f seconds.  numFrames = %d\n", dur, numFrames)
+            cam.FramesPerTrigger = numFrames;
+            cam.FramesAcquiredFcnCount = numFrames;
+            
         case 'S' %stop camera
             disp('Acquisition stopped');
             stop(cam);
@@ -48,8 +56,6 @@ try
 
             %close and clean up
             camClose;
-        
-            
     end
  
     if ~strcmp(msg{1},'G')
