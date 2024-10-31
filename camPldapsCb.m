@@ -26,7 +26,7 @@ try
             
         case 'F' %filename
             fileInfo.filename=strtrim(msg{2});
-            % JK camFile;
+            % JK The data are saved in camSaveFramesCb().
            
         case 'G' %get camera ready for acquisition (starts with hardware trigger)
             start(cam);
@@ -36,7 +36,7 @@ try
             frameRate = 16.29;
             dur = str2double(msg{2});
             numFrames = ceil(dur * frameRate);
-            fprintf("T trial duration: %0.2f seconds.  numFrames = %d\n", dur, numFrames)
+            fprintf("Trial duration: %0.2f seconds.  numFrames = %d\n", dur, numFrames)
             cam.FramesPerTrigger = numFrames;
             cam.FramesAcquiredFcnCount = numFrames;
             
@@ -45,17 +45,18 @@ try
             stop(cam);
             camSaveData;
           
-        case 'E' %close files, clean up
-            disp('Protocol end.  Closing files and camera.');
-            %save metadata
-            fname=fullfile(fileInfo.pathname,[fileInfo.filename '_meta.mat']);
-            save(fname, 'meta');
-            
-            %close movie file
-            close(fileInfo.writerObj);
-
-            %close and clean up
-            camClose;
+        % case 'E' %close files, clean up - including deleting the camera obj.  
+        %     disp('Protocol end.  Closing files and camera.');
+        %     %save metadata
+        %     fname=fullfile(fileInfo.pathname,[fileInfo.filename '_meta.mat']);
+        %     save(fname, 'meta');
+        % 
+        %     %close movie file
+        %     % close(fileInfo.writerObj);
+        % 
+        %     %close and clean up.  This deletes the camera without updating
+        %     %the GUI so use with caution.  
+        %     camClose;
     end
  
     if ~strcmp(msg{1},'G')

@@ -10,6 +10,7 @@ cam.FramesAcquiredFcn = {@cbTest, cam};
 cam.FramesAcquiredFcnCount = 64;
 cam.TriggerFcn = 'camTriggerOccurred';
 cam.StartFcn = {@startCb, cam};
+%%
 triggerconfig(cam, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
 src.TriggerMode = 'on';
 cam.TriggerRepeat = 0;
@@ -65,11 +66,25 @@ for trial = 1:numTrials
     end
 end
 
-%% save to mat file
-tic
-fname = 'testData1'
-save(fname,"ts", "data")
-toc
+%% enable snapshot
+
+% if trigger == "External"
+%     set(src, 'TriggerMode', 'Off');
+%     src.TriggerSource = "Software";
+%     set(src, 'TriggerMode', 'On');
+%  end   
+
+set(src, 'TriggerMode', 'Off');
+triggerconfig(cam,'immediate'); %,'none','none');
+%triggerconfig(cam,'hardware')
+% set(src,'TriggerMode','On');
+cam.FramesPerTrigger = 1;
+set(src,'TriggerNumFrames',1);
+set(src,'TriggerType','Standard');
+
+snapImg = getsnapshot(cam);
+imshow(snapImg);
+
 %% clear and reset
 flushdata(cam);
 imaqreset;
