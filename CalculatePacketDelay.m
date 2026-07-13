@@ -96,9 +96,9 @@ end
 
 
 % calculate packet delay
-fprintf('Calculating packet delay for:\n frame rate = %d fps,\tPacketSize (GevSCPSPacketSize) = %d,\tframe height = %d,\tframe width = %d,\tpixel format = %s, \n',... 
-    fps, packetSize, height, width, pixelFormat);
-fprintf(1, 'camera time stamp tick frequency (ticks/s) = %.1f \n', TickFreq);
+%fprintf('Calculating packet delay for:\n frame rate = %d fps,\tPacketSize (GevSCPSPacketSize) = %d,\tframe height = %d,\tframe width = %d,\tpixel format = %s, \n',... 
+%    fps, packetSize, height, width, pixelFormat);
+%fprintf(1, 'camera time stamp tick frequency (ticks/s) = %.1f \n', TickFreq);
 
 numOfBytes_EthernetHeader = 14;
 numOfBytes_IPHeader  = 20;
@@ -135,8 +135,8 @@ pauseTime_between_Packets = ratio_GigeNotUtilized/(numOfPackets_perFrame * fps);
 PacketDelay = TickFreq * pauseTime_between_Packets;
 
 delay = round(0.9 * PacketDelay);
-fprintf(1, '\nUsed gigabit bandwitdh: %.1f %%\n', 100 * ratio_GigeUtilized);
-fprintf(1, 'PacketDelay (GevSCPD): %d (ticks)\n', delay);
+%fprintf(1, '\nUsed gigabit bandwitdh: %.1f %%\n', 100 * ratio_GigeUtilized);
+%fprintf(1, 'PacketDelay (GevSCPD): %d (ticks)\n', delay);
 
 
 end
