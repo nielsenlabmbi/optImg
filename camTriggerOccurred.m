@@ -1,3 +1,3 @@
 function camTriggerOccurred(obj,event)
-    fprintf("camTriggerOccurred()\n");
+    fprintf("camTriggerOccurred\n");
 end
