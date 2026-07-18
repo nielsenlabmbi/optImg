@@ -1,6 +1,6 @@
 function camIsiCb(obj, event)
 
-global cam camProp UDPport fileInfo;
+global cam  UDPport fileInfo;
 
 try
     n = get(UDPport.serialPortHandle,'BytesAvailable');
@@ -35,36 +35,43 @@ try
             
             cam.FramesPerTrigger = numFrames;
             cam.FramesAcquiredFcnCount = numFrames;
+            src = getselectedsource(cam);
+            src.TriggerNumFrames = cam.FramesPerTrigger;
+           
 
         case 'T' %get camera ready for acquisition (per trial, starts with hardware trigger)
            
             fileInfo.trialno=msg{2};
             %start camera
-            disp('starting')
             start(cam);
             disp(['Trial ' fileInfo.trialno ' start (waiting for trigger)']);
             
         case 'S' %stop camera
             disp('Acquisition stopped');
+            camSaveFrames;
             stop(cam);
-            camSaveData;
+            
+            %pause(2);
+            %disp('Sending update to control')
+            %fwrite(UDPport.serialPortHandle,'doneData~');
 
         case 'I' %dummy first trial to avoid dropped frame issue
             fileInfo.trialno='0';
             disp('Dummy trial - starting');
             start(cam)
             disp('Dummy trial - waiting for trigger');
-            pause(10);
+            pause(5);
             %need to explicitly stop in case of dropped frames
             stop(cam);
             %flush data
+            disp(cam.FramesAvailable)
             data = getdata(cam, cam.FramesAvailable);
+            disp('Sending update to control')
             fwrite(UDPport.serialPortHandle,'doneData~');
-    
     end
  
     if ~strcmp(msg{1},'T') && ~strcmp(msg{1},'I')
-        fwrite(UDPport.serialPortHandle,'a~');
+        %fwrite(UDPport.serialPortHandle,'a~');
     end
    
 catch ME
