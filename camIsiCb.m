@@ -59,6 +59,7 @@ try
             stop(cam);
             %flush data
             data = getdata(cam, cam.FramesAvailable);
+            fwrite(UDPport.serialPortHandle,'doneData~');
     
     end
  
