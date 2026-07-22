@@ -1,10 +1,18 @@
-function camIsiCb(src,~)
+function camIsiCb(obj, event)
 
-global cam camProp  CtrlCom fileInfo;
+global cam  UDPport fileInfo;
 
-if src.NumBytesAvailable>0
-    inString=readline(src);
-    inString=char(inString);
+try
+    n = get(UDPport.serialPortHandle,'BytesAvailable');
+
+    if n > 0
+        inString = fread(UDPport.serialPortHandle,n);
+        inString = char(inString');
+    else
+        return
+    end
+    
+    inString = inString(1:end-1);  %Get rid of the terminator
     disp(['Message received from ctrl: ' inString]);
     
     msg=strtrim(strsplit(inString,';'));
@@ -44,8 +52,8 @@ if src.NumBytesAvailable>0
             stop(cam);
             
             %pause(2);
-            disp('Sending update to control')
-            write(CtrlCom,'doneData');
+            %disp('Sending update to control')
+            %fwrite(UDPport.serialPortHandle,'doneData~');
 
         case 'I' %dummy first trial to avoid dropped frame issue
             fileInfo.trialno='0';
@@ -59,11 +67,14 @@ if src.NumBytesAvailable>0
             disp(cam.FramesAvailable)
             data = getdata(cam, cam.FramesAvailable);
             disp('Sending update to control')
-            write(CtrlCom,'doneData');
+            fwrite(UDPport.serialPortHandle,'doneData~');
     end
  
     if ~strcmp(msg{1},'T') && ~strcmp(msg{1},'I')
         %fwrite(UDPport.serialPortHandle,'a~');
     end
-       
+   
+catch ME
+    disp(ME.message);
+    
 end
