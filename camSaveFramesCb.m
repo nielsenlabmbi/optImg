@@ -1,5 +1,5 @@
 function camSaveFramesCb(obj,event, videoinput)
-    global fileInfo UDPport 
+    global fileInfo 
 
     [data, ts, metadata] = getdata(videoinput, videoinput.FramesAvailable);
     
