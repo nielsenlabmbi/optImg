@@ -21,7 +21,7 @@ classdef NIAnalogLogger < handle
     properties
         devID   = "Dev1"           % change to match your device (see: daqlist)
         chNames = ["ai0","ai1"]    % analog channels to log
-        fs      = 100              % Hz
+        fs      = 1000              % Hz
     end
  
     properties (SetAccess = private)
