@@ -49,15 +49,17 @@ if src.NumBytesAvailable>0
 
         case 'T' %get camera ready for acquisition (per trial, starts with hardware trigger)
            
+            %start data logger
+            if useLogger
+                NIlogger.start();
+            end
+
             fileInfo.trialno=msg{2};
             %start camera
             start(cam);
             disp(['Trial ' fileInfo.trialno ' start (waiting for trigger)']);
             
-            %start data logger 
-            if useLogger
-                NIlogger.start();
-            end
+           
             
         case 'S' %stop camera - this always gets executed, independent of whether the camera finishes
             % because it has reached the correct frame number (otherwise we
