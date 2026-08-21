@@ -42,8 +42,8 @@ function ringLight_GUI
     end
 
     % JK
-    %disp("JK manually set to COM4");
-    %portStr = "COM4";
+    disp("JK manually set to COM4");
+    portStr = "COM4";
 
     % Baud rate must match Serial.begin() in aiNeopixels.ino
     baud = 115200;
