@@ -46,6 +46,14 @@ if src.NumBytesAvailable>0
             src = getselectedsource(cam);
             src.TriggerNumFrames = cam.FramesPerTrigger;
            
+            %write this to a file for reference
+            fname=fullfile(fileInfo.path, fileInfo.anim,...
+                [fileInfo.anim '_u' fileInfo.unit '_' fileInfo.expt],...
+                [fileInfo.anim '_u' fileInfo.unit '_' fileInfo.expt '_camInfo.mat']);
+            camInfo.framesPerTrigger=numFrames;
+            camInfo.fRate=camProp.frameRate;
+            save(fname,'camInfo');
+
 
         case 'T' %get camera ready for acquisition (per trial, starts with hardware trigger)
            

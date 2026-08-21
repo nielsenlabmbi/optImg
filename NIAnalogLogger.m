@@ -77,7 +77,7 @@ classdef NIAnalogLogger < handle
             obj.IsRunning = false;
  
             time = obj.bufTime;              %#ok<PROPLC>
-            data = obj.bufData;               %#ok<PROPLC>
+            loggerData = obj.bufData;               %#ok<PROPLC>
             channelNames = obj.chNames;       %#ok<PROPLC>
             sampleRate = obj.fs;              %#ok<PROPLC>
  
@@ -95,7 +95,7 @@ classdef NIAnalogLogger < handle
                 warning("Logger file %s already exists -- it will be overwritten.", fpath);
             end
 
-            save(fpath, "time", "data", "channelNames", "sampleRate");
+            save(fpath, "time", "loggerData", "channelNames", "sampleRate");
  
             fprintf("Logger acquisition stopped. Saved %d samples to %s\n", numel(time), fpath);
         end
